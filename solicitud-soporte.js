@@ -4,6 +4,33 @@ const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyaDdRzHEXI26
 
 let datosSolicitudes = []; // Variable global para almacenar los datos y poder filtrarlos
 
+// --- Lógica de Validación Dinámica de Placa ---
+const checkboxesCategoria = document.querySelectorAll('input[name="categoria"]');
+const inputPlaca = document.querySelector('input[name="placa_inventario"]');
+const labelPlaca = inputPlaca ? inputPlaca.previousElementSibling : null;
+const asteriskPlaca = labelPlaca ? labelPlaca.querySelector('.text-danger') : null;
+
+function actualizarValidacionPlaca() {
+    if (!inputPlaca || !asteriskPlaca) return;
+
+    const esHardware = document.getElementById('cat-hardware').checked;
+    const esRedes = document.getElementById('cat-redes').checked;
+    
+    // Si es Hardware o Redes, la placa es obligatoria
+    if (esHardware || esRedes) {
+        inputPlaca.required = true;
+        asteriskPlaca.style.display = 'inline';
+        inputPlaca.placeholder = "Ej: placa 5658 (Obligatorio)";
+    } else {
+        inputPlaca.required = false;
+        asteriskPlaca.style.display = 'none';
+        inputPlaca.placeholder = "";
+    }
+}
+
+checkboxesCategoria.forEach(cb => cb.addEventListener('change', actualizarValidacionPlaca));
+actualizarValidacionPlaca(); // Inicializar estado
+
 // Lógica para mostrar campo de Puesto Rural si se selecciona "Rurales (Otro)"
 const servicioSelect = document.getElementById('servicioSelect');
 if (servicioSelect) {
@@ -118,6 +145,8 @@ function cargarDatosEnFormulario(fila) {
             if (cats.includes(cb.value)) cb.checked = true;
         });
     }
+    // Actualizar validación según las categorías cargadas
+    actualizarValidacionPlaca();
 
     // 4. Interfaz: Ocultar tabla y mostrar formulario
     document.getElementById('adminPanel').classList.add('d-none');
@@ -333,6 +362,9 @@ if (supportForm) supportForm.addEventListener('submit', function(e) {
             document.getElementById('rowIndex').value = ''; // Limpiar índice
             document.getElementById('originalDate').value = ''; // Limpiar fecha
             document.getElementById('currentPdfUrl').value = ''; // Limpiar URL PDF
+            
+            // Restaurar validación de placa (opcional por defecto)
+            actualizarValidacionPlaca();
             
             // DESBLOQUEAR CAMPOS (Para permitir nuevas solicitudes limpias)
             const camposUsuario = ['nombre', 'servicio', 'descripcion', 'placa_inventario', 'prioridad', 'nombre_rural'];
