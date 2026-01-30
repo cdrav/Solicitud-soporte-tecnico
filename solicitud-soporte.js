@@ -56,9 +56,13 @@ if (btnValidarClave) {
             const modal = bootstrap.Modal.getInstance(modalElement);
             modal.hide();
         } else {
-            alert("Clave incorrecta.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Acceso Denegado',
+                text: 'La clave ingresada es incorrecta.',
+                confirmButtonColor: '#dc3545'
+            });
             inputClave.value = '';
-            inputClave.focus();
         }
     });
 }
@@ -147,7 +151,12 @@ function cargarDatosEnFormulario(fila) {
     const submitBtn = form.querySelector('button[type="submit"]');
     if(submitBtn) submitBtn.innerHTML = '<i class="bi bi-arrow-repeat me-2"></i>Actualizar Solicitud';
     
-    alert('Solicitud cargada. Agregue la solución y haga clic en "Actualizar Solicitud" para guardar en la misma fila.');
+    Swal.fire({
+        icon: 'info',
+        title: 'Solicitud Cargada',
+        text: 'Agregue la solución y haga clic en "Actualizar Solicitud" para guardar los cambios.',
+        confirmButtonColor: '#0d6efd'
+    });
 }
 
 // Función para filtrar y renderizar la tabla
@@ -233,7 +242,12 @@ if (btnVerSolicitudes) {
         })
         .catch(error => {
             console.error('Error cargando datos:', error);
-            alert('Error al cargar los registros. Verifica tu conexión o el script.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de Conexión',
+                text: 'No se pudieron cargar los registros. Verifica tu conexión.',
+                confirmButtonColor: '#dc3545'
+            });
         })
         .finally(() => {
             this.innerHTML = originalText;
@@ -266,7 +280,13 @@ if (supportForm) supportForm.addEventListener('submit', function(e) {
 
     // Validación: Al menos una categoría seleccionada
     if (this.querySelectorAll('input[name="categoria"]:checked').length === 0) {
-        alert('Por favor seleccione al menos una categoría de incidente.');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Falta Información',
+            text: 'Por favor seleccione al menos una categoría de incidente.',
+            confirmButtonColor: '#ffc107',
+            confirmButtonText: 'Entendido'
+        });
         return;
     }
 
@@ -301,7 +321,14 @@ if (supportForm) supportForm.addEventListener('submit', function(e) {
             const esActualizacion = data.has('row_index') && data.get('row_index') !== '';
             const mensaje = esActualizacion ? '¡Solicitud actualizada correctamente!' : '¡Solicitud de soporte radicada con éxito!';
             
-            alert(mensaje);
+            Swal.fire({
+                icon: 'success',
+                title: esActualizacion ? '¡Actualizado!' : '¡Enviado!',
+                text: mensaje,
+                confirmButtonColor: '#198754',
+                confirmButtonText: 'Aceptar'
+            });
+            
             document.getElementById('supportRequestForm').reset();
             document.getElementById('rowIndex').value = ''; // Limpiar índice
             document.getElementById('originalDate').value = ''; // Limpiar fecha
@@ -335,7 +362,12 @@ if (supportForm) supportForm.addEventListener('submit', function(e) {
     })
     .catch(error => {
         console.error('Error!', error.message);
-        alert('Error: ' + error.message);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error al Enviar',
+            text: 'Ocurrió un problema: ' + error.message,
+            confirmButtonColor: '#dc3545'
+        });
     })
     .finally(() => {
         submitBtn.disabled = false;
