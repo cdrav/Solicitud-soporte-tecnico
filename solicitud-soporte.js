@@ -394,15 +394,19 @@ if (supportForm) supportForm.addEventListener('submit', function(e) {
             const zonaSistemas = document.getElementById('zonaSistemas');
             if(zonaSistemas) zonaSistemas.classList.add('d-none');
         } else {
-            throw new Error(response.error);
+            // Si el servidor devuelve un error, lo lanzamos para que lo capture el .catch
+            // Se añade un texto por defecto si el servidor no especifica el error.
+            throw new Error(response.error || 'El servidor devolvió una respuesta de error no especificada.');
         }
     })
     .catch(error => {
-        console.error('Error!', error.message);
+        // Se mejora el log de errores para capturar el objeto completo y no solo el mensaje.
+        console.error('Error al procesar la solicitud:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error al Enviar',
-            text: 'Ocurrió un problema: ' + error.message,
+            // Se muestra el mensaje del error de forma segura, evitando 'undefined'.
+            text: 'Ocurrió un problema: ' + (error.message || 'No se pudo conectar con el servidor o procesar la respuesta.'),
             confirmButtonColor: '#dc3545'
         });
     })
