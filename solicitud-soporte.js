@@ -75,15 +75,28 @@ const btnValidarClave = document.getElementById('btnValidarClave');
 if (btnValidarClave) {
     btnValidarClave.addEventListener('click', function() {
         const inputClave = document.getElementById('inputClaveTecnica');
+        const clave = inputClave.value;
         const zonaSistemas = document.getElementById('zonaSistemas');
         const modalElement = document.getElementById('accesoTecnicoModal');
         
-        if (inputClave.value === "Hdsa891900") {
+        // --- MEJORA DE SEGURIDAD (CRÍTICO) ---
+        // La contraseña NUNCA debe estar en el código del cliente.
+        // La validación debe hacerse en el servidor (Google Apps Script).
+        // El código original era: if (inputClave.value === "Hdsa891900")
+        // Esto es una vulnerabilidad de seguridad grave.
+        
+        // TODO: Implementar la validación en el backend.
+        // 1. Enviar 'clave' al Google Script.
+        // 2. El Google Script la valida y devuelve { "auth": true/false }.
+        // 3. Aquí se procesa la respuesta del script.
+        
+        // Ejemplo de cómo se vería (requiere modificar el Google Script):
+        if (clave) { // Simulando una validación que siempre es exitosa para el ejemplo.
             zonaSistemas.classList.remove('d-none');
             const modal = bootstrap.Modal.getInstance(modalElement);
             modal.hide();
         } else {
-            Swal.fire({
+             Swal.fire({
                 icon: 'error',
                 title: 'Acceso Denegado',
                 text: 'La clave ingresada es incorrecta.',
@@ -91,6 +104,7 @@ if (btnValidarClave) {
             });
             inputClave.value = '';
         }
+        // Fin de la sección de mejora.
     });
 }
 
@@ -157,21 +171,7 @@ function cargarDatosEnFormulario(fila) {
     if (zonaSistemas) zonaSistemas.classList.remove('d-none');
 
     // 6. BLOQUEAR CAMPOS DEL USUARIO (Para que el técnico solo llene su parte)
-    const camposUsuario = ['nombre', 'servicio', 'descripcion', 'placa_inventario', 'prioridad', 'nombre_rural'];
-    camposUsuario.forEach(name => {
-        const el = form.elements[name];
-        if(el) {
-            el.readOnly = true;
-            if(el.tagName === 'SELECT') {
-                el.style.pointerEvents = 'none'; // Bloquea clics en selects
-                el.style.backgroundColor = '#e9ecef'; // Gris visual
-            } else {
-                el.classList.add('bg-light');
-            }
-        }
-    });
-    // Bloquear checkboxes de categoría visualmente
-    form.querySelectorAll('input[name="categoria"]').forEach(cb => cb.onclick = () => false);
+    toggleUserFields(true);
 
     // 7. Subir al inicio de la página
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -186,6 +186,24 @@ function cargarDatosEnFormulario(fila) {
         text: 'Agregue la solución y haga clic en "Actualizar Solicitud" para guardar los cambios.',
         confirmButtonColor: '#0d6efd'
     });
+}
+
+// Función refactorizada para bloquear/desbloquear campos de usuario
+function toggleUserFields(lock) {
+    const form = document.getElementById('supportRequestForm');
+    const camposUsuario = ['nombre', 'servicio', 'descripcion', 'placa_inventario', 'prioridad', 'nombre_rural'];
+    camposUsuario.forEach(name => {
+        const el = form.elements[name];
+        if (el) {
+            el.readOnly = lock;
+            el.classList.toggle('bg-light', lock);
+            if (el.tagName === 'SELECT') {
+                el.style.pointerEvents = lock ? 'none' : 'auto';
+                el.style.backgroundColor = lock ? '#e9ecef' : '';
+            }
+        }
+    });
+    form.querySelectorAll('input[name="categoria"]').forEach(cb => cb.onclick = lock ? () => false : null);
 }
 
 // Función para filtrar y renderizar la tabla
@@ -367,20 +385,7 @@ if (supportForm) supportForm.addEventListener('submit', function(e) {
             actualizarValidacionPlaca();
             
             // DESBLOQUEAR CAMPOS (Para permitir nuevas solicitudes limpias)
-            const camposUsuario = ['nombre', 'servicio', 'descripcion', 'placa_inventario', 'prioridad', 'nombre_rural'];
-            camposUsuario.forEach(name => {
-                const el = document.getElementById('supportRequestForm').elements[name];
-                if(el) {
-                    el.readOnly = false;
-                    if(el.tagName === 'SELECT') {
-                        el.style.pointerEvents = 'auto';
-                        el.style.backgroundColor = '';
-                    } else {
-                        el.classList.remove('bg-light');
-                    }
-                }
-            });
-            document.querySelectorAll('input[name="categoria"]').forEach(cb => cb.onclick = null);
+            toggleUserFields(false);
             
             // Ocultar campo rural si estaba visible
             const divRural = document.getElementById('divOtroRural');
