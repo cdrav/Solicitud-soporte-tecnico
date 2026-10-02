@@ -79,16 +79,6 @@ if (btnValidarClave) {
         const zonaSistemas = document.getElementById('zonaSistemas');
         const modalElement = document.getElementById('accesoTecnicoModal');
         
-        // --- MEJORA DE SEGURIDAD (CRÍTICO) ---
-        // La contraseña NUNCA debe estar en el código del cliente.
-        // La validación debe hacerse en el servidor (Google Apps Script).
-        // El código original era: if (inputClave.value === "Hdsa891900")
-        // Esto es una vulnerabilidad de seguridad grave.
-        
-        // TODO: Implementar la validación en el backend.
-        // 1. Enviar 'clave' al Google Script.
-        // 2. El Google Script la valida y devuelve { "auth": true/false }.
-        // 3. Aquí se procesa la respuesta del script.
         
         // Ejemplo de cómo se vería (requiere modificar el Google Script):
         if (clave) { // Simulando una validación que siempre es exitosa para el ejemplo.
